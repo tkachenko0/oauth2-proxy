@@ -301,6 +301,12 @@ Attacker intercepts HTTP traffic -> Sees encrypted HTTPS -> Cannot read cookies
 
 Every request validates the JWT signature using the Identity Provider's public keys (JWKS).
 
+### Sub Claim Validation
+
+BFF validates that the `sub` (subject) claim matches between ID token and access token.
+The `sub` claim uniquely identifies the user.
+This prevents token substitution attacks and ensures ID token and access token belong to the same user
+
 ### Authorization Code Interception
 
 **Attack:** Attacker intercepts OAuth authorization code.
