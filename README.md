@@ -320,10 +320,9 @@ Identity Provider requires: code_verifier (attacker doesn't have it)
 Result: Token exchange fails
 ```
 
-<!--
 ### State Parameter
 
-The `state` parameter prevents CSRF attacks during OAuth flow:
+The `state` parameter prevents some attacks during OAuth flow:
 
 1. BFF generates random `state` value (e.g., `"STATE_VAL_123"`)
 2. Stores in HTTP-only cookie with `SameSite=lax`
@@ -331,73 +330,15 @@ The `state` parameter prevents CSRF attacks during OAuth flow:
 4. Identity Provider returns same `state` in callback URL
 5. BFF validates `state` from URL matches `state` from cookie
 
-**Real example from logs:**
-
-```txt
-Step 1: BFF sets cookie: oauth_state=STATE_VAL_123
-        BFF redirects to: /login?state=STATE_VAL_123
-
-Step 2: Identity Provider redirects: /?code=ABC&state=STATE_VAL_123
-        Browser sends cookie: oauth_state=STATE_VAL_123
-        BFF validates: URL state === Cookie state
-```
-
-**The vulnerability without state parameter:**
+This ensures the callback is completing a login flow that YOUR server initiated, not one an attacker started.
+Attacker can create any URL with any `state` value, but attacker cannot set cookies in victim's browser.
 
 Without state verification, an attacker can exploit the OAuth flow:
 
 1. Attacker initiates OAuth login on their own browser, gets authorization code
 2. Attacker tricks you into visiting: `http://localhost:3000/?code=ATTACKERS_CODE`
 3. Your browser exchanges the attacker's code for tokens
-4. You're now logged in as the attacker - anything you do is linked to their account
-
-**How state prevents this attack:**
-
-1. Your server generates a random state value before redirecting to Identity Provider
-2. Server stores this state in HTTP-only cookie
-3. Identity Provider includes the same state in the callback URL
-4. Server verifies the returned state matches what it stored
-5. If they don't match, reject the request
-
-This ensures the callback is completing a login flow that YOUR server initiated, not one an attacker started.
-
-**Malicious flow prevented:**
-
-```txt
-Attacker creates malicious link: /auth/callback?code=STOLEN_CODE&state=FAKE
-Victim clicks link
-BFF checks: URL state ("FAKE") !== Cookie state ("36a6dc18...")
-Attack blocked (403 Forbidden)
-```
-
-**Why this works:**
-
-- Attacker can create any URL with any `state` value
-- But attacker cannot set cookies in victim's browser (cross-origin restriction)
-- Victim's browser has legitimate `state` cookie from Step 1
-- BFF rejects request if URL state doesn't match cookie state
-
-### OAuth State Manipulation
-
-**Attack:** Attacker creates malicious callback with fake state.
-
-**Prevention:** BFF validates state parameter matches cookie.
-
-```txt
-Attacker: /auth/callback?code=STOLEN&state=FAKE
-BFF checks: state cookie = REAL_STATE
-Result: State mismatch, request rejected
-```
--->
-
-## TODOs
-
-- [ ] Optimize logging for production: Move `pino-pretty` back to devDependencies and use conditional JSON logging (check `NODE_ENV`, remove pino-pretty transport in production, update Dockerfile to set `ENV NODE_ENV=production`)
-- [ ] Check the cognito endpoints and their specification
-- [ ] Use code also in the logout endpoints
-- [ ] Add explanation for state
-- [ ] Add explanation for nonce
-- [ ] Add other explanation on vulnerabilities prevented
+4. You're now logged in as the attacker, anything you do is linked to their account
 
 ## Useful Links
 
@@ -423,3 +364,11 @@ Result: State mismatch, request rejected
 ## License
 
 MIT
+
+## TODOs
+
+- [ ] Optimize logging for production: Move `pino-pretty` back to devDependencies and use conditional JSON logging (check `NODE_ENV`, remove pino-pretty transport in production, update Dockerfile to set `ENV NODE_ENV=production`)
+- [ ] Check the cognito endpoints and their specification
+- [ ] Use code also in the logout endpoints
+- [ ] Add explanation for nonce
+- [ ] Add other explanation on vulnerabilities prevented
