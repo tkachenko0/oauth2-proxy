@@ -63,8 +63,8 @@ Your backend is responsible for authorization, but this is simple work since you
 - [Flow](#authentication-flow)
 - [Setup](#setup)
 - [Cookies Security](#cookies-security)
-- [Useful Links](#useful-links)
 - [Vulnerabilities Mitigations](#vulnerabilities-mitigations)
+- [Useful Links](#useful-links)
 - [TODOs](#todos)
 
 ## Architecture
@@ -371,29 +371,6 @@ Attack blocked (403 Forbidden)
 - Victim's browser has legitimate `state` cookie from Step 1
 - BFF rejects request if URL state doesn't match cookie state
 
-### Nonce Parameter
-
-The `nonce` parameter prevents replay attacks on ID tokens:
-
-1. BFF generates random `nonce` value (e.g., `"NONCE_VAL_456"`)
-2. Stores in HTTP-only cookie with `SameSite=lax`
-3. Sends same `nonce` to Identity Provider in authorization URL
-4. Identity Provider includes `nonce` claim in the ID token
-5. BFF validates `nonce` claim in ID token matches `nonce` from cookie
-
-**Real-world scenario:**
-
-1. You log in at a coffee shop on public WiFi
-2. Attacker intercepts your ID token
-3. Later, attacker tries to use your token to access your account
-4. Even though the token is valid and not expired, the nonce mismatch prevents the attack
-
-**Security benefits:**
-
-- Prevents token replay attacks
-- Ensures ID token was issued for this specific authentication request
-- Protects against token theft from logs, network interception, or XSS
-- Adds additional layer of protection beyond signature verification
 
 ### OAuth State Manipulation
 
