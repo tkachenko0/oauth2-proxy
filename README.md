@@ -377,7 +377,6 @@ Attack blocked (403 Forbidden)
 - Victim's browser has legitimate `state` cookie from Step 1
 - BFF rejects request if URL state doesn't match cookie state
 
-
 ### OAuth State Manipulation
 
 **Attack:** Attacker creates malicious callback with fake state.
