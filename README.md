@@ -61,7 +61,6 @@ Your backend is responsible for authorization, but this is simple work since you
 
 - [Architecture](#architecture)
 - [Flow](#authentication-flow)
-- [Why BFF Instead of Frontend PKCE?](#why-bff-instead-of-frontend-pkce)
 - [Setup](#setup)
 - [Cookies Security](#cookies-security)
 - [Useful Links](#useful-links)
@@ -121,30 +120,6 @@ sequenceDiagram
    - Identity Provider validates: SHA256(code_verifier) === stored code_challenge
    - If both validations pass: Issue tokens
    - If either fails: Reject request
-
-## Why BFF Instead of Frontend PKCE?
-
-Many OAuth implementations do PKCE entirely in the frontend. While this works, the BFF approach is more secure.
-
-1. Tokens Never Exposed to Browser
-
-- Frontend PKCE: Tokens end up in JavaScript (localStorage), vulnerable to XSS
-- BFF: Tokens in HTTP-only cookies
-
-1. Client Secret Usable
-
-- Frontend PKCE: Cannot use `client_secret` (would be exposed in JS code)
-- BFF: Can use `client_secret` in token exchange
-
-1. Centralized JWT Validation
-
-- Frontend PKCE: Every API request must validate JWT (JWKS, signature, exp, issuer)
-- BFF: Validation done once by proxy, backend receives only headers
-
-1. No OAuth Logic in Frontend
-
-- Frontend PKCE: Must manage refresh tokens, retry, PKCE logic in React/Vue
-- BFF: Frontend only does `window.location.href = '/auth/login'`
 
 ## Setup
 
