@@ -2,6 +2,8 @@
 
 Reusable Backend-for-Frontend (BFF) proxy with OAuth 2.0 + PKCE authentication. Tokens are stored in HTTP-only cookies, and authenticated requests are proxied to your backend with user context injected as headers.
 
+**Supported providers:** AWS Cognito, Microsoft Entra ID, Keycloak
+
 ## Why This Repository Exists
 
 While integrating auth in applications, I struggled to find a complete, production-ready example that:
@@ -59,11 +61,34 @@ Your backend is responsible for authorization, but this is simple work since you
 
 ## Table of Contents
 
+- [Why This Repository Exists](#why-this-repository-exists)
+  - [Common mistakes I've seen (and made)](#common-mistakes-ive-seen-and-made)
+  - [When evaluating any OAuth implementation](#when-evaluating-any-oauth-implementation-including-this-one-ask-if)
+- [What This BFF Does and Does NOT](#what-this-bff-does-and-does-not)
 - [Architecture](#architecture)
-- [Flow](#authentication-flow)
+- [Authentication Flow](#authentication-flow)
 - [Setup](#setup)
+  - [Configure Environment](#configure-environment)
+    - [General Configuration](#general-configuration)
+    - [AWS Cognito Provider Configuration](#aws-cognito-provider-configuration)
+    - [Microsoft Entra ID Provider Configuration](#microsoft-entra-id-provider-configuration)
+    - [Keycloak Provider Configuration](#keycloak-provider-configuration)
+  - [Using with Your Backend](#using-with-your-backend)
+  - [Post-Login Redirect](#post-login-redirect)
 - [Cookies Security](#cookies-security)
+  - [Auth Cookies](#auth-cookies-after-successful-login)
+  - [OAuth State Cookies](#oauth-state-cookies-during-login-flow)
 - [Vulnerabilities Mitigations](#vulnerabilities-mitigations)
+  - [XSS (Cross-Site Scripting)](#xss-cross-site-scripting)
+  - [CSRF (Cross-Site Request Forgery)](#csrf-cross-site-request-forgery)
+  - [Token Theft via Man-in-the-Middle](#token-theft-via-man-in-the-middle)
+  - [JWT Signature Verification](#jwt-signature-verification)
+  - [Audience Claim Validation](#audience-claim-validation)
+  - [Sub Claim Validation](#sub-claim-validation)
+  - [Authorization Code Interception](#authorization-code-interception)
+  - [State Parameter](#state-parameter)
+  - [Nonce Parameter](#nonce-parameter)
+- [License](#license)
 - [TODOs](#todos)
 
 ## Architecture
