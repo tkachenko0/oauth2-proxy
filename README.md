@@ -346,6 +346,29 @@ Without state verification, an attacker can exploit the OAuth flow:
 3. Your browser exchanges the attacker's code for tokens
 4. You're now logged in as the attacker, anything you do is linked to their account
 
+### Nonce Parameter
+
+The `nonce` parameter is used because OAuth providers support it as an additional security measure.
+
+**How it works:**
+
+1. BFF generates random `nonce` value before login
+2. Stores in HTTP-only cookie
+3. Sends `nonce` to Identity Provider in authorization URL
+4. Identity Provider includes `nonce` as a claim in the ID token
+5. BFF validates `nonce` in ID token matches `nonce` in cookie (only during initial login callback)
+
+**Questions about its necessity:**
+
+This implementation already has multiple layers of protection:
+
+- **PKCE**
+- **State parameter**
+- **HTTP-only cookies**
+- **JWT signature verification**
+
+Given these existing protections, questions arise about whether nonce provides additional security value or is redundant. The nonce is included because the OpenID Connect specification recommends it and providers support it, but its practical benefit in this specific architecture remains unclear. It may serve as defense in depth.
+
 ## License
 
 MIT
@@ -355,4 +378,3 @@ MIT
 - [ ] Optimize logging for production: Move `pino-pretty` back to devDependencies and use conditional JSON logging (check `NODE_ENV`, remove pino-pretty transport in production, update Dockerfile to set `ENV NODE_ENV=production`)
 - [ ] Check the cognito endpoints and their specification
 - [ ] Use code also in the logout endpoints
-- [ ] Add explanation for nonce
